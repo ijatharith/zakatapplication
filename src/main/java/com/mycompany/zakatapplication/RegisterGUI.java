@@ -53,6 +53,11 @@ public class RegisterGUI {
 
         Label messageLabel = new Label();
 
+        Button test = new Button("test");
+
+
+
+
         grid.add(button, 1, 2);
 
         registerButton.setOnAction(e -> {
@@ -86,7 +91,7 @@ public class RegisterGUI {
                 app.setScene(app.getLoginPanelView());
             }
         });
-
+        grid.add(test, 0, 4);
 
         return grid;
     }

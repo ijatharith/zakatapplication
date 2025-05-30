@@ -11,6 +11,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import javax.swing.*;
+
 public class MainMenu {
     public Parent getView(MainApp app) {
 
@@ -50,9 +52,32 @@ public class MainMenu {
                 app.setScene(app.getLoginPanelView());
             }
         });
+        btnPayment.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                app.setScene(app.getPaymentGUI());
+            }
+        });
 
         TextArea textArea = new TextArea();
-        textArea.setMaxSize(300, 20);
+
+        btnCheckTotal.setOnAction(e -> {
+            User loggedInUser = app.getLoggedInUser();
+
+            if (loggedInUser != null && loggedInUser.getZakatRecord() != null) {
+                double total = loggedInUser.getZakatRecord().getTotalZakat();
+                double fitrah = loggedInUser.getZakatRecord().getZakatFitrah();
+                double income = loggedInUser.getZakatRecord().getZakatIncome();
+                double agriculture = loggedInUser.getZakatRecord().getZakatAgriculture();
+
+                textArea.setText(String.format("Zakat Fitrah: RM %.2f\n"
+                        + "Zakat Income: RM %.2f\n"
+                        + "Zakat Agriculture: RM %.2f\n"
+                        + "Total Zakat: RM %.2f", fitrah, income, agriculture, total));
+            } else {
+                textArea.setText("No user or zakat record found.");
+            }
+        });
 
 
 

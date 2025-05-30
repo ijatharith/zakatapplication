@@ -1,0 +1,20 @@
+Username: izzat
+Payment at 2025-05-31 00:57:
+Zakat Paid:
+Zakat Fitrah: RM 27.45 -> RM 0.00
+Zakat Income: RM 1387.50 -> RM 0.00
+Zakat Agriculture: RM 722.15 -> RM 0.00
+Payment successful.
+
+Zakat Paid: RM 0.00
+
+Username: izzat
+Payment at 2025-05-31 00:57:
+Zakat Paid:
+Zakat Fitrah: RM 13.73 -> RM 0.00
+Zakat Income: RM 138874.20 -> RM 0.00
+Zakat Agriculture: RM 722.15 -> RM 0.00
+Payment successful.
+
+Zakat Paid: RM 0.00
+

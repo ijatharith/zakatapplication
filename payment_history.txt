@@ -1,0 +1,7 @@
+Payment at 2025-05-30 23:42:
+Zakat Paid:
+Zakat Fitrah: RM 25418.70 -> RM 0.00
+Zakat Income: RM 13888.75 -> RM 0.00
+Zakat Agriculture: RM 722.15 -> RM 0.00
+Payment successful.
+

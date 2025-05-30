@@ -1,0 +1,11 @@
+Username: r
+Payment at 2025-05-31 01:50:
+Zakat Paid:
+Zakat Income: RM 247.50 -> RM 0.00
+Payment successful.
+
+Zakat Paid: RM 247.50
+
+Username: r
+Zakat Paid: RM 0.00
+

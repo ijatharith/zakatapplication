@@ -16,6 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.List;
+
 public class LoginGUI {
     public Parent getView(MainApp app) {
         GridPane grid = new GridPane();
@@ -23,7 +25,6 @@ public class LoginGUI {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10));
-
 
         Label header = new Label("Welcome to the \nZakat Calculation System");
         header.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-alignment: center;");
@@ -33,21 +34,19 @@ public class LoginGUI {
         Label emailLabel = new Label("Email: ");
         TextField emailField = new TextField();
 
-
-        Label password = new Label("Password: ");
+        Label passwordLabel = new Label("Password: ");
         PasswordField passwordField = new PasswordField();
 
-        VBox details = new VBox(emailLabel, password);
+        VBox details = new VBox(emailLabel, passwordLabel);
         details.setSpacing(20);
-        VBox field = new VBox(emailField, passwordField);
-        field.setSpacing(10);
+        VBox fields = new VBox(emailField, passwordField);
+        fields.setSpacing(10);
 
         grid.add(details, 0, 1);
-        grid.add(field, 1, 1);
+        grid.add(fields, 1, 1);
 
         Button loginButton = new Button("Login");
         Button cancelButton = new Button("Cancel");
-
 
         HBox buttonBox = new HBox(loginButton, cancelButton);
         buttonBox.setAlignment(Pos.BASELINE_RIGHT);
@@ -65,44 +64,59 @@ public class LoginGUI {
         newUserQueryBox.setPadding(new Insets(10));
 
         Label messageLabel = new Label();
-
         grid.add(newUserQueryBox, 2, 1);
+
+        // Setup a single Admin instance (only one admin allowed)
+        Admin admin = new Admin();
 
         loginButton.setOnAction(e -> {
             String email = emailField.getText();
             String pass = passwordField.getText();
 
-            User updateUser = app.getRegisteredUser();
-
-            if (updateUser.getEmail().equals(email) && updateUser.getPassword().equals(pass)) {
-                messageLabel.setText("Login successful!");
+            // Check if login is admin
+            if (admin.login(email, pass)) {
+                messageLabel.setText("Admin login successful!");
                 messageLabel.setStyle("-fx-text-fill: green;");
-                app.setScene(app.getMainMenuView());
-            } else {
-                messageLabel.setText("Invalid credentials.");
-                messageLabel.setStyle("-fx-text-fill: red;");
                 grid.add(messageLabel, 1, 3);
+
+                app.setScene(app.getAdminGUI());
+            } else {
+                // Check normal users from the registered users list
+                boolean loginSuccess = false;
+                User loggedInUser = null;
+
+                for (User user : app.getRegisteredUsers()) {
+                    if (user.login(email, pass)) {
+                        loginSuccess = true;
+                        loggedInUser = user;
+                        break;
+                    }
+                }
+
+                if (loginSuccess) {
+                    messageLabel.setText("User login successful!");
+                    messageLabel.setStyle("-fx-text-fill: green;");
+                    grid.add(messageLabel, 1, 3);
+
+                    app.setLoggedInUser(loggedInUser);
+                    app.setScene(app.getMainMenuView());
+                } else {
+                    messageLabel.setText("Invalid credentials.");
+                    messageLabel.setStyle("-fx-text-fill: red;");
+                    grid.add(messageLabel, 1, 3);
+                }
             }
         });
 
-        registerButton.setOnAction(new EventHandler<ActionEvent>()
-        {
-            @Override
-            public void handle(ActionEvent e) {
-                app.setScene(app.getRegisterPanelView());
-            }
+        registerButton.setOnAction(e -> {
+            app.setScene(app.getRegisterPanelView());
         });
 
-        cancelButton.setOnAction(new EventHandler<ActionEvent>()
-        {
-            @Override
-            public void handle(ActionEvent e) {
-                app.setScene(app.getLoginPanelView());
-            }
+        cancelButton.setOnAction(e -> {
+            app.setScene(app.getLoginPanelView());
         });
-
-
 
         return grid;
     }
 }
+

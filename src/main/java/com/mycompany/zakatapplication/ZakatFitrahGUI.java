@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+
 public class ZakatFitrahGUI {
     private static final double RICE_PRICE = 1.83; // RM per kg
     private static final double FITRAH_PER_PERSON_KG = 2.5;
@@ -37,61 +38,47 @@ public class ZakatFitrahGUI {
         dependentsBox.getChildren().addAll(dependentsLabel, dependentsField);
         dependentsBox.setVisible(false);
 
-        withDependents.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dependentsBox.setVisible(true);
-            }
-        });
-
-        myself.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dependentsBox.setVisible(false);
-            }
-        });
+        withDependents.setOnAction(e -> dependentsBox.setVisible(true));
+        myself.setOnAction(e -> dependentsBox.setVisible(false));
 
         Button calculateBtn = new Button("Calculate Zakat");
         Label resultLabel = new Label();
 
-        calculateBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                if (myself.isSelected()) {
-                    double amount = RICE_PRICE * FITRAH_PER_PERSON_KG;
-                    String message = String.format("Your Zakat Fitrah: RM %.2f", amount);
-                    resultLabel.setText(message);
-                } else if (withDependents.isSelected()) {
-                    try {
-                        int dependents = Integer.parseInt(dependentsField.getText());
-                        int totalPeople = 1 + dependents;
-                        double amount = totalPeople * RICE_PRICE * FITRAH_PER_PERSON_KG;
-                        String message = String.format("Total Zakat Fitrah for %d people: RM %.2f", totalPeople, amount);
-                        resultLabel.setText(message);
-                    } catch (NumberFormatException ex) {
-                        resultLabel.setText("Please enter a valid number of dependents.");
+        calculateBtn.setOnAction(e -> {
+            int totalPeople = 0;
+
+            if (myself.isSelected()) {
+                totalPeople = 1;
+            } else if (withDependents.isSelected()) {
+                try {
+                    int dependents = Integer.parseInt(dependentsField.getText());
+                    if (dependents < 0) {
+                        resultLabel.setText("Number of dependents cannot be negative.");
+                        return;
                     }
-                } else {
-                    resultLabel.setText("Please select an option first.");
+                    totalPeople = 1 + dependents;
+                } catch (NumberFormatException ex) {
+                    resultLabel.setText("Please enter a valid number of dependents.");
+                    return;
                 }
+            } else {
+                resultLabel.setText("Please select an option first.");
+                return;
+            }
+
+            ZakatFitrah zakatCalc = new ZakatFitrah(totalPeople);
+            double amount = zakatCalc.calculateZakat();
+
+            resultLabel.setText(String.format("Total Zakat Fitrah for %d person(s): RM %.2f", totalPeople, amount));
+
+            User currentUser = app.getLoggedInUser();
+            if (currentUser != null) {
+                currentUser.getZakatRecord().setZakatFitrah(amount);
             }
         });
-
 
         Button backBtn = new Button("Back");
-
-        // Placeholder for action handling
-
-        backBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                app.setScene(app.getMainMenuView());
-            }
-        });
-
-
-
-
+        backBtn.setOnAction(e -> app.setScene(app.getMainMenuView()));
 
         HBox navButtons = new HBox(15, backBtn);
         navButtons.setAlignment(Pos.CENTER);
@@ -108,6 +95,6 @@ public class ZakatFitrahGUI {
         );
 
         return root;
-
     }
 }
+

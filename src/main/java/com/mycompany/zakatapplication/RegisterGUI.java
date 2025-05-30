@@ -1,20 +1,15 @@
 package com.mycompany.zakatapplication;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 public class RegisterGUI {
+
     public Parent getView(MainApp app) {
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10));
@@ -22,7 +17,8 @@ public class RegisterGUI {
         grid.setVgap(10);
 
         Label header = new Label("Register a new account");
-        grid.add(header, 0, 0);
+        header.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        grid.add(header, 0, 0, 2, 1);
 
         Label nameLabel = new Label("Full Name:");
         TextField nameField = new TextField();
@@ -33,65 +29,74 @@ public class RegisterGUI {
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();
 
-        Label comfirmPasswordLabel = new Label("Confirm Password:");
-        PasswordField comfirmPasswordField = new PasswordField();
+        Label confirmPasswordLabel = new Label("Confirm Password:");
+        PasswordField confirmPasswordField = new PasswordField();
 
-        VBox details = new VBox(nameLabel, emailLabel, passwordLabel, comfirmPasswordLabel);
+        VBox details = new VBox(nameLabel, emailLabel, passwordLabel, confirmPasswordLabel);
         details.setSpacing(20);
-        VBox field = new VBox(nameField, emailField, passwordField, comfirmPasswordField);
-        field.setSpacing(10);
+        VBox fields = new VBox(nameField, emailField, passwordField, confirmPasswordField);
+        fields.setSpacing(10);
 
         grid.add(details, 0, 1);
-        grid.add(field, 1, 1);
+        grid.add(fields, 1, 1);
 
         Button registerButton = new Button("Register");
-        Button cancelButton = new Button("Close");
+        Button cancelButton = new Button("Cancel");
 
-        HBox button = new HBox(registerButton, cancelButton);
-        button.setSpacing(10);
-        button.setAlignment(Pos.BASELINE_RIGHT);
+        HBox buttonBox = new HBox(registerButton, cancelButton);
+        buttonBox.setSpacing(10);
+        buttonBox.setAlignment(Pos.BASELINE_RIGHT);
+        grid.add(buttonBox, 1, 2);
 
         Label messageLabel = new Label();
-
-        Button test = new Button("test");
-
-
-
-
-        grid.add(button, 1, 2);
+        grid.add(messageLabel, 0, 3, 2, 1);
 
         registerButton.setOnAction(e -> {
-            String email = emailField.getText();
+            String name = nameField.getText().trim();
+            String email = emailField.getText().trim();
             String password = passwordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
 
-
-            if (email.isEmpty() || password.isEmpty()) {
+            // Basic validation
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 messageLabel.setText("Please fill in all fields.");
                 messageLabel.setStyle("-fx-text-fill: red;");
-                grid.add(messageLabel, 0, 3);
-            } else {
-                User updateUser = new User();
-                updateUser.setEmail(email);
-                updateUser.setPassword(password);
-
-                app.setRegisteredUser(updateUser);
-
-
-                messageLabel.setText("Registration successful!");
-                messageLabel.setStyle("-fx-text-fill: green;");
-                grid.add(messageLabel, 0, 3);
+                return;
             }
+
+            if (!password.equals(confirmPassword)) {
+                messageLabel.setText("Passwords do not match.");
+                messageLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+
+            // Check if email is already registered
+            boolean emailExists = app.getRegisteredUsers().stream()
+                    .anyMatch(user -> user.getUsername().equalsIgnoreCase(email));
+
+            if (emailExists) {
+                messageLabel.setText("Email is already registered.");
+                messageLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+
+            // Create new user and add to registered users list
+            User newUser = new User(email, password);
+            app.registerUser(newUser);
+
+            messageLabel.setText("Registration successful! Please login.");
+            messageLabel.setStyle("-fx-text-fill: green;");
+
+            // Clear fields
+            nameField.clear();
+            emailField.clear();
+            passwordField.clear();
+            confirmPasswordField.clear();
         });
 
-
-        cancelButton.setOnAction(new EventHandler<ActionEvent>()
-        {
-            @Override
-            public void handle(ActionEvent e) {
-                app.setScene(app.getLoginPanelView());
-            }
+        cancelButton.setOnAction(e -> {
+            app.setScene(app.getLoginPanelView());
         });
-        grid.add(test, 0, 4);
 
         return grid;
     }

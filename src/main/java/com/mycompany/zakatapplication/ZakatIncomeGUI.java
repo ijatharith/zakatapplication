@@ -1,12 +1,9 @@
 package com.mycompany.zakatapplication;
 
-
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -27,54 +24,54 @@ public class ZakatIncomeGUI {
         // Labels and Fields
         Label labelincome = new Label("Monthly Income (RM):");
         TextField tfincome = new TextField();
+        tfincome.setPromptText("e.g. 5000.00");
 
         Label labelexpense = new Label("Total Expenses (RM):");
         TextField tfexpense = new TextField();
+        tfexpense.setPromptText("e.g. 1500.00");
 
         Label labelresult = new Label("Result:");
         Label taresult = new Label();
-
 
         Button bttncalculate = new Button("Calculate Zakat");
         Button bttnclear = new Button("Clear");
 
         // Calculate action
-        bttncalculate.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                try {
-                    double income = Double.parseDouble(tfincome.getText());
-                    double expenses = Double.parseDouble(tfexpense.getText());
+        bttncalculate.setOnAction((ActionEvent e) -> {
+            try {
+                double income = Double.parseDouble(tfincome.getText());
+                double expenses = Double.parseDouble(tfexpense.getText());
 
-                    if (income < 0 || expenses < 0) {
-                        taresult.setText("Error: Please enter positive numbers only.");
-                        return;
-                    }
-
-                    double netIncome = income - expenses;
-                    double amount;
-
-                    if (netIncome >= 4000) {
-                        amount = netIncome * 0.025;
-                        taresult.setText(String.format("Your Zakat Income payment: RM %.2f", amount));
-                    } else {
-                        taresult.setText("You are not liable to pay Zakat on income.");
-                    }
-
-                } catch (NumberFormatException ex) {
-                    taresult.setText("Error: Invalid input. Please enter valid numbers.");
+                if (income < 0 || expenses < 0) {
+                    taresult.setText("Error: Please enter positive numbers only.");
+                    return;
                 }
+
+                ZakatIncome zakatCalc = new ZakatIncome(income, expenses);
+                double zakatAmount = zakatCalc.calculateZakat();
+
+                String msg = zakatAmount > 0 ?
+                        String.format("Your Zakat Income payment: RM %.2f", zakatAmount) :
+                        "You are not liable to pay Zakat on income.";
+                taresult.setText(msg);
+
+                User currentUser = app.getLoggedInUser();
+                if (currentUser != null) {
+                    UserZakatRecord record = currentUser.getZakatRecord();
+                    record.setZakatIncome(zakatAmount);
+                }
+
+            } catch (NumberFormatException ex) {
+                taresult.setText("Error: Invalid input. Please enter valid numbers.");
             }
+
         });
 
-        // Recalculate action
-        bttnclear.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                tfincome.clear();
-                tfexpense.clear();
-                //taresult.clear();//
-            }
+        // Clear action
+        bttnclear.setOnAction((ActionEvent e) -> {
+            tfincome.clear();
+            tfexpense.clear();
+            taresult.setText("");
         });
 
         // Add components to layout
@@ -87,29 +84,20 @@ public class ZakatIncomeGUI {
         grid.add(labelresult, 0, 3);
         grid.add(taresult, 0, 4, 3, 1);
 
-        // --- Bottom Buttons ---
+        // Bottom Buttons
         Button bttnback = new Button("Back");
-        Button bttnnext = new Button("Next");
-        Button bttnexit = new Button("Exit");
-
-        bttnback.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                app.setScene(app.getMainMenuView());
-            }
+        bttnback.setOnAction((ActionEvent e) -> {
+            app.setScene(app.getMainMenuView());
         });
 
-        HBox buttonBox = new HBox(10);
+        Button bttnExit = new Button("Exit"); // Added Exit button
+
+
+        HBox buttonBox = new HBox(10, bttnback, bttnExit); // Added Exit button
         buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.getChildren().addAll(bttnback);
 
-        // --- Main Layout Wrapper ---
-        VBox root = new VBox(grid, buttonBox);
-        root.setSpacing(10);
-
+        // Wrap everything in VBox
+        VBox root = new VBox(10, grid, buttonBox);
         return root;
-
     }
-
-
 }

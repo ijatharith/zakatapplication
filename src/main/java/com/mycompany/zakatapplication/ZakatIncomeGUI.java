@@ -10,9 +10,23 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class ZakatIncomeGUI {
     public Parent getView(MainApp app) {
+        // Header
+        HBox headerbox = new HBox();
+        headerbox.setPadding(new Insets(10));
+        headerbox.setAlignment(Pos.CENTER);
+        headerbox.setSpacing(10);
+
+        //ImageView logoview = new ImageView(new Image("/images/systemlogo.png")); // Update path as needed
+        //logoview.setFitHeight(120);
+        //logoview.setPreserveRatio(true);
+
+        //headerbox.getChildren().addAll(logoview);
 
         // Main layout
         GridPane grid = new GridPane();
@@ -90,14 +104,66 @@ public class ZakatIncomeGUI {
             app.setScene(app.getMainMenuView());
         });
 
-        Button bttnExit = new Button("Exit"); // Added Exit button
+        HBox bttnbox = new HBox(10, bttnback);
+        bttnbox.setAlignment(Pos.CENTER);
 
+        // 3 Logos
+        HBox logobox = new HBox(20);
+        logobox.setAlignment(Pos.CENTER);
+        logobox.setPadding(new Insets(20));
 
-        HBox buttonBox = new HBox(10, bttnback, bttnExit); // Added Exit button
-        buttonBox.setAlignment(Pos.CENTER);
+        // ImageView img1 = new ImageView(new Image("C:\\Users\\itzki\\Downloads\\WhatsApp Image 2025-06-11 at 2.57.27 AM.jpeg"));
+        // ImageView img2 = new ImageView(new Image("C:\\Users\\itzki\\Downloads\\WhatsApp Image 2025-06-11 at 3.00.08 AM.jpeg"));
+        // ImageView img3 = new ImageView(new Image("C:\\Users\\itzki\\Downloads\\WhatsApp Image 2025-06-11 at 3.00.15 AM.jpeg"));
+
+        //for (ImageView img : new ImageView[]{img1, img2, img3}) {
+        //    img.setFitWidth(200);
+        //    img.setPreserveRatio(true);
+        // }
+
+        // logobox.getChildren().addAll(img1, img2, img3);
+
+        // Side panels
+        VBox leftpanel = new VBox(10);
+        leftpanel.setPadding(new Insets(15));
+        leftpanel.setStyle("-fx-background-color: #CCC;"); // Light gray color
+        leftpanel.setPrefWidth(200);
+
+        Label tipstitle = new Label("Zakat Income Tips:");
+        tipstitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label tip1 = new Label("• Zakat is 2.5% of your surplus income.");
+        Label tip2 = new Label("• Only pay if your wealth exceeds Nisab.");
+        Label tip3 = new Label("• Expenses are deductible before Zakat.");
+
+        leftpanel.getChildren().addAll(tipstitle, tip1, tip2, tip3);
+
+        VBox rightpanel = new VBox();
+        rightpanel.setPadding(new Insets(0));
+        rightpanel.setStyle("-fx-background-color: #CCC;");
+        rightpanel.setAlignment(Pos.CENTER);
+        rightpanel.setPrefWidth(200);
+
+        //ImageView gifview = new ImageView("https://i.pinimg.com/originals/da/3f/c3/da3fc37c777bdc2e8f1322298f80d610.gif");
+        //gifview.setFitWidth(200);
+        //gifview.setFitHeight(420);
+        //gifview.setPreserveRatio(false);
+
+        //rightpanel.getChildren().add(gifview);
+
+        // Grouping All Together
+        BorderPane mainlayout = new BorderPane();
+        mainlayout.setPadding(new Insets(20));
+        mainlayout.setTop(headerbox);
+        mainlayout.setCenter(grid);
+        mainlayout.setLeft(leftpanel);
+        mainlayout.setRight(rightpanel);
 
         // Wrap everything in VBox
-        VBox root = new VBox(10, grid, buttonBox);
-        return root;
+        VBox bottomSection = new VBox(10, bttnbox, logobox);
+        bottomSection.setAlignment(Pos.CENTER);
+        mainlayout.setBottom(bottomSection);
+
+        return mainlayout;
     }
 }

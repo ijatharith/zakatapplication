@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.io.IOException;
@@ -21,6 +23,12 @@ public class PaymentGUI {
     private final StringBuilder historyLog = new StringBuilder();
 
     public Parent getView(MainApp app) {
+
+        Image image = new Image(getClass().getResourceAsStream("/images/systemlogo.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(347 * 1.5);
+        imageView.setFitHeight(94 * 1.5);
+
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10));
 
@@ -29,24 +37,28 @@ public class PaymentGUI {
         HBox headerBox = new HBox(header);
         headerBox.setAlignment(Pos.CENTER);
 
-        // Zakat options
+        // Zakat selection using RadioButtons
         Label chooseZakat = new Label("Which zakat do you want to pay?");
-        CheckBox zakatFitrah = new CheckBox("Zakat Fitrah");
-        CheckBox zakatIncome = new CheckBox("Zakat Income");
-        CheckBox zakatAgriculture = new CheckBox("Zakat Agriculture");
+        ToggleGroup zakatGroup = new ToggleGroup();
+
+        RadioButton zakatFitrah = new RadioButton("Zakat Fitrah");
+        RadioButton zakatIncome = new RadioButton("Zakat Income");
+        RadioButton zakatAgriculture = new RadioButton("Zakat Agriculture");
+
+        zakatFitrah.setToggleGroup(zakatGroup);
+        zakatIncome.setToggleGroup(zakatGroup);
+        zakatAgriculture.setToggleGroup(zakatGroup);
 
         VBox zakatType = new VBox(zakatFitrah, zakatIncome, zakatAgriculture);
+        zakatType.setAlignment(Pos.CENTER);
         zakatType.setSpacing(10);
         zakatType.setPadding(new Insets(10));
 
-        // Buttons
-        Button checkTotalButton = new Button("Check Total");
         Button payTotalButton = new Button("Pay Total");
-        Button saveHistoryButton = new Button("Save to History");
         Button viewHistoryButton = new Button("View History");
         Button backBtn = new Button("Back");
 
-        HBox buttonBox = new HBox(checkTotalButton, payTotalButton, saveHistoryButton, viewHistoryButton);
+        HBox buttonBox = new HBox(payTotalButton, viewHistoryButton);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
         buttonBox.setPadding(new Insets(10));
@@ -56,36 +68,6 @@ public class PaymentGUI {
         zakatResult.setMaxSize(400, 100);
         zakatResult.setWrapText(true);
 
-        // Check Total Logic
-        checkTotalButton.setOnAction(e -> {
-            User user = app.getLoggedInUser();
-            if (user == null) {
-                zakatResult.setText("No user logged in.");
-                return;
-            }
-
-            UserZakatRecord record = user.getZakatRecord();
-            totalToPay = 0;
-            StringBuilder summary = new StringBuilder("Selected Zakat to Pay:\n");
-
-            if (zakatFitrah.isSelected()) {
-                totalToPay += record.getZakatFitrah();
-                summary.append(String.format("Zakat Fitrah: RM %.2f\n", record.getZakatFitrah()));
-            }
-
-            if (zakatIncome.isSelected()) {
-                totalToPay += record.getZakatIncome();
-                summary.append(String.format("Zakat Income: RM %.2f\n", record.getZakatIncome()));
-            }
-
-            if (zakatAgriculture.isSelected()) {
-                totalToPay += record.getZakatAgriculture();
-                summary.append(String.format("Zakat Agriculture: RM %.2f\n", record.getZakatAgriculture()));
-            }
-
-            summary.append(String.format("\nTotal Zakat to Pay: RM %.2f", totalToPay));
-            zakatResult.setText(summary.toString());
-        });
 
         // Pay Total Logic
         payTotalButton.setOnAction(e -> {
@@ -95,30 +77,43 @@ public class PaymentGUI {
                 return;
             }
 
+            Toggle selectedToggle = zakatGroup.getSelectedToggle();
+            if (selectedToggle == null) {
+                zakatResult.setText("Please select one zakat type to pay.");
+                return;
+            }
+
             UserZakatRecord record = user.getZakatRecord();
+            String selected = ((RadioButton) selectedToggle).getText();
             StringBuilder paidSummary = new StringBuilder("Zakat Paid:\n");
             boolean paidSomething = false;
 
-            if (zakatFitrah.isSelected() && record.getZakatFitrah() > 0) {
-                paidSummary.append(String.format("Zakat Fitrah: RM %.2f -> RM 0.00\n", record.getZakatFitrah()));
-                record.setZakatFitrah(0.0);
-                paidSomething = true;
-            }
-
-            if (zakatIncome.isSelected() && record.getZakatIncome() > 0) {
-                paidSummary.append(String.format("Zakat Income: RM %.2f -> RM 0.00\n", record.getZakatIncome()));
-                record.setZakatIncome(0.0);
-                paidSomething = true;
-            }
-
-            if (zakatAgriculture.isSelected() && record.getZakatAgriculture() > 0) {
-                paidSummary.append(String.format("Zakat Agriculture: RM %.2f -> RM 0.00\n", record.getZakatAgriculture()));
-                record.setZakatAgriculture(0.0);
-                paidSomething = true;
+            switch (selected) {
+                case "Zakat Fitrah":
+                    if (record.getZakatFitrah() > 0) {
+                        paidSummary.append(String.format("Zakat Fitrah: RM %.2f -> RM 0.00\n", record.getZakatFitrah()));
+                        record.setZakatFitrah(0.0);
+                        paidSomething = true;
+                    }
+                    break;
+                case "Zakat Income":
+                    if (record.getZakatIncome() > 0) {
+                        paidSummary.append(String.format("Zakat Income: RM %.2f -> RM 0.00\n", record.getZakatIncome()));
+                        record.setZakatIncome(0.0);
+                        paidSomething = true;
+                    }
+                    break;
+                case "Zakat Agriculture":
+                    if (record.getZakatAgriculture() > 0) {
+                        paidSummary.append(String.format("Zakat Agriculture: RM %.2f -> RM 0.00\n", record.getZakatAgriculture()));
+                        record.setZakatAgriculture(0.0);
+                        paidSomething = true;
+                    }
+                    break;
             }
 
             if (!paidSomething) {
-                zakatResult.setText("No zakat selected or all values already paid.");
+                zakatResult.setText("Zakat already paid or amount is zero.");
                 return;
             }
 
@@ -129,17 +124,35 @@ public class PaymentGUI {
                     .append(paidSummary).append("\n");
 
             zakatResult.setText(paidSummary.toString());
-        });
 
-        // Save History Logic
-        saveHistoryButton.setOnAction(e -> {
-            User currentUser = app.getLoggedInUser();
-            if (currentUser == null) {
-                zakatResult.setText("User not logged in. Cannot save history.");
-                return;
-            }
+            Dialog<Void> receiptDialog = new Dialog<>();
+            receiptDialog.setTitle("Payment Receipt");
+            receiptDialog.setHeaderText("Zakat Payment Receipt");
 
-            String username = currentUser.getUsername();
+            String receiptContent = "Username: " + user.getUsername() + "\n"
+                    + "Date: " + timestamp + "\n"
+                    + paidSummary;
+
+            TextArea receiptTextArea = new TextArea(receiptContent);
+            receiptTextArea.setWrapText(true);
+            receiptTextArea.setEditable(false);
+            receiptTextArea.setPrefWidth(400);
+            receiptTextArea.setPrefHeight(200);
+
+            ButtonType printButtonType = new ButtonType("Print", ButtonBar.ButtonData.LEFT);
+            ButtonType closeButtonType = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+            receiptDialog.getDialogPane().getButtonTypes().addAll(printButtonType, closeButtonType);
+            receiptDialog.getDialogPane().setContent(receiptTextArea);
+            receiptDialog.setResultConverter(dialogButton -> {
+                if (dialogButton == printButtonType) {
+                    System.out.println("Printing Receipt:\n" + receiptTextArea.getText());
+                }
+                return null;
+            });
+
+            receiptDialog.showAndWait();
+
+            String username = user.getUsername();
             String filename = "history_" + username + ".txt";
 
             double totalPaid = 0.0;
@@ -150,12 +163,13 @@ public class PaymentGUI {
                 if (matcher.find()) {
                     try {
                         totalPaid += Double.parseDouble(matcher.group(1));
-                    } catch (NumberFormatException ignored) {}
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
 
             String fullLog = "Username: " + username + "\n"
-                    + historyLog.toString()
+                    + historyLog
                     + "Zakat Paid: RM " + String.format("%.2f", totalPaid) + "\n\n";
 
             try {
@@ -194,8 +208,10 @@ public class PaymentGUI {
 
         // Final layout
         VBox mainBox = new VBox(10);
+        mainBox.setAlignment(Pos.CENTER);
         mainBox.setPadding(new Insets(15));
         mainBox.getChildren().addAll(
+                imageView,
                 headerBox,
                 chooseZakat,
                 zakatType,

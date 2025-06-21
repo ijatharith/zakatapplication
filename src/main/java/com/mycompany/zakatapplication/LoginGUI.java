@@ -11,6 +11,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -26,10 +28,14 @@ public class LoginGUI {
         grid.setVgap(10);
         grid.setPadding(new Insets(10));
 
-        Label header = new Label("Welcome to the \nZakat Calculation System");
-        header.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-alignment: center;");
-        header.setPadding(new Insets(5));
-        grid.add(header, 1, 0);
+        Image image = new Image(getClass().getResourceAsStream("/images/systemlogo.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(347*1.5);
+        imageView.setFitHeight(94*1.5);
+
+        HBox topLogoBox = new HBox(imageView);
+        topLogoBox.setAlignment(Pos.CENTER);
+        topLogoBox.setPadding(new Insets(10, 0, 20, 0)); // space between logo and form
 
         Label emailLabel = new Label("Email: ");
         TextField emailField = new TextField();
@@ -53,7 +59,11 @@ public class LoginGUI {
         buttonBox.setSpacing(10);
         buttonBox.setPadding(new Insets(5));
 
+
+
         grid.add(buttonBox, 1, 2);
+
+
 
         Label newUserQuery = new Label("Are you a new user? Register Here");
         Button registerButton = new Button("Register");
@@ -65,6 +75,10 @@ public class LoginGUI {
 
         Label messageLabel = new Label();
         grid.add(newUserQueryBox, 2, 1);
+
+        Label sponsorLabel = new Label("In collaboration with");
+        sponsorLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        sponsorLabel.setAlignment(Pos.CENTER);
 
         // Setup a single Admin instance (only one admin allowed)
         Admin admin = new Admin();
@@ -115,8 +129,31 @@ public class LoginGUI {
         cancelButton.setOnAction(e -> {
             app.setScene(app.getLoginPanelView());
         });
+        Image zakatSelangorImage = new Image(getClass().getResourceAsStream("/images/zakatselangor.png"));
+        ImageView zakatSelangor = new ImageView(zakatSelangorImage);
+        zakatSelangor.setFitWidth(200);
+        zakatSelangor.setFitHeight(50);
 
-        return grid;
+        Image zakatNesemilanImage = new Image(getClass().getResourceAsStream("/images/zakatn9.png"));
+        ImageView zakatNesemilan = new ImageView(zakatNesemilanImage);
+        zakatNesemilan.setFitWidth(200);
+        zakatNesemilan.setFitHeight(50);
+
+        Image zakatKedahImage = new Image(getClass().getResourceAsStream("/images/zakatkedah.png"));
+        ImageView zakatKedah = new ImageView(zakatKedahImage);
+        zakatKedah.setFitWidth(200);
+        zakatKedah.setFitHeight(50);
+
+        HBox bottomLogoBox = new HBox(zakatSelangor, zakatNesemilan, zakatKedah);
+        bottomLogoBox.setAlignment(Pos.CENTER);
+        bottomLogoBox.setSpacing(10);
+        bottomLogoBox.setPadding(new Insets(10, 0, 20, 0));
+
+        VBox root = new VBox(topLogoBox, grid, sponsorLabel, bottomLogoBox);
+        root.setAlignment(Pos.CENTER);
+
+
+        return root;
     }
 }
 

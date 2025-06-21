@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -11,10 +13,23 @@ import javafx.scene.layout.VBox;
 public class RegisterGUI {
 
     public Parent getView(MainApp app) {
+
+        VBox root = new VBox();
+        root.setPadding(new Insets(20));
+        root.setSpacing(15);
+        root.setAlignment(Pos.CENTER);
+
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10));
+        grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
+
+        Image image = new Image(getClass().getResourceAsStream("/images/systemlogo.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(347*1.5);
+        imageView.setFitHeight(94*1.5);
+
 
         Label header = new Label("Register a new account");
         header.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
@@ -98,6 +113,11 @@ public class RegisterGUI {
             app.setScene(app.getLoginPanelView());
         });
 
-        return grid;
+        root.getChildren().addAll(
+                imageView,
+                grid
+        );
+
+        return root;
     }
 }
